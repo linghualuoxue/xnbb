@@ -24,7 +24,8 @@ public class BootStrap {
          */
         if(args!=null){
             for (String arg : args) {
-              File file =   new File(arg);
+                arg =  arg.replaceAll("\\\\","/");//windows原路径需要转化才能识别
+                File file =   new File(arg);
               if(file.exists()){
                    if(file.isDirectory()){
                         //文件夹的处理
@@ -40,8 +41,9 @@ public class BootStrap {
                        for (String fileName : files) {
                            //目标文件
                           String targetFile =  targetDirector+File.separator+
-                           fileName.substring(0,fileName.indexOf(CollectorConstant.FILE_NAME_SPLIT
-                           )-1);
+                           fileName.substring(0,fileName.lastIndexOf(CollectorConstant.FILE_NAME_SPLIT
+                           ));
+                          fileName = file.getAbsolutePath()+File.separator+fileName;//给要写的文件加上路径
                            //移动站的处理
                            if(fileName.contains(CollectorConstant.MOBILE_STATION)){
                                threadPool.execute(new ParseMobileStationData(new File(fileName),targetFile));
@@ -58,13 +60,13 @@ public class BootStrap {
                      String absolutePath = file.getAbsolutePath();
                      //移动站的处理
                      if(fileName.contains(CollectorConstant.MOBILE_STATION)){
-                           String newFile = absolutePath.substring(0,absolutePath.lastIndexOf(CollectorConstant.FILE_NAME_SPLIT)-1);
+                           String newFile = absolutePath.substring(0,absolutePath.lastIndexOf(CollectorConstant.FILE_NAME_SPLIT));
                            threadPool.execute(new ParseMobileStationData(file,newFile));
                      }
                      //固定站的处理
                      if(fileName.contains(CollectorConstant.FIXATION_STATION)){
-                         String newFile = absolutePath.substring(0,absolutePath.lastIndexOf(CollectorConstant.FILE_NAME_SPLIT)-1);
-                         threadPool.execute(new ParseFixStationData(new File(fileName),newFile));
+                         String newFile = absolutePath.substring(0,absolutePath.lastIndexOf(CollectorConstant.FILE_NAME_SPLIT));
+                         threadPool.execute(new ParseFixStationData(file,newFile));
                      }
                    }
                   // String path =    file.getAbsolutePath();

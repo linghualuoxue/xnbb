@@ -144,7 +144,7 @@ public class ParseFixStationData implements Runnable{
             stream.read(b);
             int day = BytesConversionUtils.getShortOne(b,0);
             System.out.printf("日:"+day+"\n");
-            entity.setMinute(DateUtils.parseSingleTime(day));
+            entity.setDay(DateUtils.parseSingleTime(day));
 
 
             len=1;
@@ -166,7 +166,7 @@ public class ParseFixStationData implements Runnable{
             stream.read(b);
             int second = BytesConversionUtils.getShortOne(b,0);
             System.out.printf("秒:"+second+"\n");
-            entity.setMinute(DateUtils.parseSingleTime(second));
+            entity.setSecond(DateUtils.parseSingleTime(second));
 
             len=2;
             b = new byte[len];

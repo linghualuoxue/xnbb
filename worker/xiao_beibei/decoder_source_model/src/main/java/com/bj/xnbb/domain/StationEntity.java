@@ -10,7 +10,7 @@ public class StationEntity {
     private String seria;//编号
     private String yarn;//年
     private String month;//月
-    private String date;//日
+    private String day;//日
     private String hour;//时
     private String minute;//分钟
     private String second;//秒
@@ -66,12 +66,12 @@ public class StationEntity {
         this.month = month;
     }
 
-    public String getDate() {
-        return date;
+    public String getDay() {
+        return day;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setDay(String day) {
+        this.day = day;
     }
 
     public String getHour() {
@@ -175,8 +175,8 @@ public class StationEntity {
         return fileName+
                 "\t"+title+
                 "\t"+seria+
-                "\t"+yarn+month+date+hour+minute+second+millisecond+
-                "\t"+speed+
+                "\t"+yarn+month+day+hour+minute+second+millisecond+
+                "\t"+(speed==null?"speed":speed)+
                 "\t"+longitude+
                 "\t"+dimension+
                 "\t"+hanging+

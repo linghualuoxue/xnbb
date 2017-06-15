@@ -140,8 +140,8 @@ public class BytesConversionUtils {
         accum = accum|(b[1] & 0xff) << 8;
         accum = accum|(b[2] & 0xff) << 16;
         accum = accum|(b[3] & 0xff) << 24;
-        return accum;
-        // return Float.intBitsToFloat(accum);
+        //return accum;
+         return Float.intBitsToFloat(accum);
     }
 
     /**
