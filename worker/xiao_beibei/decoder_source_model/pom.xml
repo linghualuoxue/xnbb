@@ -6,7 +6,11 @@
 
     <groupId>com.bj.xnbb.decoder_source_model</groupId>
     <artifactId>decoder_source_model</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>../latitude_calculate_model</module>
+    </modules>
 
 
     <dependencies>

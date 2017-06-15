@@ -19,8 +19,8 @@ public class StationEntity {
     private double longitude;//精度
     private double dimension;//纬度
     private int hanging;//挂高
-    private long startkHz;//开始频率
-    private float step;//步进
+    private int startkHz;//开始频率
+    private int step;//步进
     private int frequencyCount;//频率点数
     private String frequency;//频率
 
@@ -130,19 +130,19 @@ public class StationEntity {
         this.hanging = hanging;
     }
 
-    public long getStartkHz() {
+    public int getStartkHz() {
         return startkHz;
     }
 
-    public void setStartkHz(long startkHz) {
+    public void setStartkHz(int startkHz) {
         this.startkHz = startkHz;
     }
 
-    public float getStep() {
+    public int getStep() {
         return step;
     }
 
-    public void setStep(float step) {
+    public void setStep(int step) {
         this.step = step;
     }
 
@@ -172,16 +172,16 @@ public class StationEntity {
 
     @Override
     public String toString() {
-        return fileName+
-                "\001"+title+
-                "\001"+seria+
-                "\001"+yarn+month+day+hour+minute+second+millisecond+
+        return
+              //  "\001"+title+
+              //  "\001"+seria+
+                yarn+month+day+hour+minute+second+millisecond+
                 "\001"+(speed==null?"speed":speed)+
                 "\001"+longitude+
                 "\001"+dimension+
                 "\001"+hanging+
-                "\001"+startkHz+
-                "\001"+step+
+                // "\001"+startkHz+
+                // "\001"+step+
                 "\001"+frequencyCount+
                 "\001"+frequency;
     }

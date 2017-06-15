@@ -1,5 +1,6 @@
 package com.bj.xnbb.handler;
 
+import com.bj.xnbb.common.CollectorConstant;
 import com.bj.xnbb.util.*;
 import com.bj.xnbb.domain.*;
 
@@ -105,6 +106,12 @@ public class ParseMobileStationData implements Runnable {
     private List<StationEntity> parseData(File file, FileInputStream stream) throws IOException {
         List<StationEntity> entityList = new ArrayList<StationEntity>();
 
+        String fileName =  file.getName();
+        String[] lines = fileName.split(CollectorConstant.POSTFIX);
+
+        int startHz = Integer.valueOf(lines[4].substring(0,lines[4].indexOf("M")));
+        int step = Integer.valueOf(lines[6].substring(0, lines[6].indexOf(".")));
+
         while(stream.available()>0){
 
             StationEntity entity = new StationEntity();
@@ -196,19 +203,25 @@ public class ParseMobileStationData implements Runnable {
             System.out.printf("挂高:"+hanging+" m\n");
             entity.setHanging(hanging);
 
-            len=8;
-            b = new byte[len];
-            stream.read(b);
-            long startkHz = BytesConversionUtils.getLong8(b,0);
-            System.out.printf("开始频率:"+startkHz/1000000+" MHz\n");
-            entity.setStartkHz(startkHz/1000000);
+//            len=8;
+//            b = new byte[len];
+//            stream.read(b);
+//            long startkHz = BytesConversionUtils.getLong8(b,0);
+//            System.out.printf("开始频率:"+startkHz/1000000+" MHz\n");
+//            entity.setStartkHz(startkHz/1000000);
 
-            len=4;
-            b = new byte[len];
-            stream.read(b);
-            float step = BytesConversionUtils.getFloat(b);
-            System.out.printf("步进:"+step/1000+" kHz\n");
-            entity.setStep(step/1000);
+            stream.skip(8);
+            entity.setStartkHz(startHz);
+
+//            len=4;
+//            b = new byte[len];
+//            stream.read(b);
+//            float step = BytesConversionUtils.getFloat(b);
+//            System.out.printf("步进:"+step/1000+" kHz\n");
+//            entity.setStep(step/1000);
+
+            stream.skip(4);
+            entity.setStep(step);
 
             len=4;
             b = new byte[len];
