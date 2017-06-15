@@ -1,8 +1,5 @@
-package xnbb.util;
+package com.bj.xnbb.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;

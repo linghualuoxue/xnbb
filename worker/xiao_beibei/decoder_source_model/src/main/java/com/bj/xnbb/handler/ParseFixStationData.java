@@ -1,23 +1,21 @@
-package xnbb.handler;
+package com.bj.xnbb.handler;
 
-
-import xnbb.com.bj.xnbb.common.CollectorConstant;
-import xnbb.com.bj.xnbb.domain.StationEntity;
-import xnbb.util.BytesConversionUtils;
-import xnbb.util.DateUtils;
 import org.apache.log4j.Logger;
+import com.bj.xnbb.util.*;
+import com.bj.xnbb.domain.*;
 
 import java.io.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-/**移动站的处理
+
+/**固定站的处理
  * Created by XNBB on 2017/6/14.
  */
-public class ParseMobileStationData implements Runnable {
+public class ParseFixStationData implements Runnable{
 
-    static final Logger logger = Logger.getLogger(ParseMobileStationData.class);
+    static final Logger logger = Logger.getLogger(ParseFixStationData.class);
 
     static DecimalFormat df   =new  java.text.DecimalFormat("#.000000");//精度格式
 
@@ -25,7 +23,7 @@ public class ParseMobileStationData implements Runnable {
 
     private String targetFielName;
 
-    public ParseMobileStationData(File file,String tartgetFileName) {
+    public ParseFixStationData(File file,String tartgetFileName) {
         this.targetFielName = tartgetFileName;
         this.file = file;
     }
@@ -51,28 +49,36 @@ public class ParseMobileStationData implements Runnable {
             stream = new FileInputStream(file);
             entityList = parseData(file, stream);
         } catch (IOException e) {
-           logger.error("解析文件失败，文件："+file.getName(),e.getCause());
+            logger.error("解析文件失败，文件："+file.getName(),e.getCause());
         } finally {
             if(stream!=null)stream.close();
         }
-        writeToTargetFIle(file, entityList);
+        writeToTargetFIle(entityList);
     }
 
     /**
      * 向目标文件写数据
-     * @param file
      * @param entityList
      * @throws IOException
      */
-    private void writeToTargetFIle(File file, List<StationEntity> entityList) throws IOException {
-        String fileName = file.getName();
-        String newFileName = targetFielName+File.separator
-                +fileName.substring(0,fileName.lastIndexOf(CollectorConstant.FILE_NAME_SPLIT)-1)
-                +CollectorConstant.POSTFIX;
-        File outFile = null;
+    private void writeToTargetFIle(List<StationEntity> entityList) throws IOException {
+//        String fileName = file.getName();
+//        String newFileName = targetFielName+File.separator
+//                +fileName.substring(0,fileName.lastIndexOf(CollectorConstant.FILE_NAME_SPLIT)-1)
+//                +CollectorConstant.POSTFIX;
+
+        File outFile = new File(targetFielName);
+        if(!outFile.exists()){
+            outFile.createNewFile();
+        }else{
+            //删除文件
+            outFile.delete();
+            outFile.createNewFile();
+        }
+
+
         BufferedWriter bufferredWriter = null;
         try {
-            outFile = new File(newFileName);
             bufferredWriter = new BufferedWriter(new FileWriter(outFile,true));
 
             for (StationEntity entity : entityList) {
@@ -81,7 +87,7 @@ public class ParseMobileStationData implements Runnable {
                 bufferredWriter.flush();
             }
         } catch (IOException e) {
-            logger.error("写文件失败,文件："+newFileName,e.getCause());
+            logger.error("写文件失败,文件："+outFile,e.getCause());
         } finally {
             if(bufferredWriter!=null){
                 bufferredWriter.close();
@@ -169,6 +175,13 @@ public class ParseMobileStationData implements Runnable {
             System.out.printf("毫秒:"+millisecond+"\n");
             entity.setMillisecond(DateUtils.parseSingleTime(millisecond));
 
+            len = 2;
+            b = new byte[len];
+            stream.read(b);
+            int speed = BytesConversionUtils.getShort(b,0);
+            System.out.printf("速度："+speed+"\n");
+            entity.setSpeed(String.valueOf(speed));
+
             len=8;
             b = new byte[len];
             stream.read(b);
@@ -183,10 +196,10 @@ public class ParseMobileStationData implements Runnable {
             System.out.printf("维度:"+df.format(dimension)+" 度\n");
             entity.setDimension(dimension);
 
-            len=4;
+            len=2;
             b = new byte[len];
             stream.read(b);
-            int hanging = BytesConversionUtils.byte2int4(b);
+            int hanging = BytesConversionUtils.getShort(b,0);
             System.out.printf("挂高:"+hanging+" m\n");
             entity.setHanging(hanging);
 
@@ -220,9 +233,9 @@ public class ParseMobileStationData implements Runnable {
                 //System.out.printf("帧："+frequency);
             }
             entity.setFrequency(sb.substring(0,sb.length()-1));
-           logger.info("文件解析完成,内容为："+entity.toString());
+            logger.info("文件解析完成,内容为："+entity.toString());
             entityList.add(entity);
-    }
+        }
         return entityList;
     }
 }

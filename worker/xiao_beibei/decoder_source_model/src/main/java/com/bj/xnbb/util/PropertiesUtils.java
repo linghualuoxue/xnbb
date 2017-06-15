@@ -1,6 +1,4 @@
-package xnbb.util;
-
-import com.sun.xml.internal.ws.api.ResourceLoader;
+package com.bj.xnbb.util;
 
 /**
  * Created by XNBB on 2017/6/14.

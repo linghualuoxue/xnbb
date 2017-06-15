@@ -1,7 +1,7 @@
-package xnbb.com.bj.xmbb.bootstrap;
-
-import xnbb.com.bj.xnbb.common.CollectorConstant;
-import xnbb.handler.ParseMobileStationData;
+package com.bj.xnbb.bootstrap;
+import com.bj.xnbb.common.*;
+import com.bj.xnbb.handler.*;
+import com.bj.xnbb.util.DateUtils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -28,20 +28,27 @@ public class BootStrap {
               if(file.exists()){
                    if(file.isDirectory()){
                         //文件夹的处理
-                        String targetFile = file.getAbsolutePath()+CollectorConstant.POSTFIX;
-                        File tFile = new File(targetFile);
+                        String targetDirector = file.getAbsolutePath()
+                                + CollectorConstant.POSTFIX
+                                + DateUtils.getTimestamp();
+
+                        File tFile = new File(targetDirector);
                         if(!tFile.exists()){
                             tFile.mkdirs();
                         }
                         String[] files = file.list();
                        for (String fileName : files) {
+                           //目标文件
+                          String targetFile =  targetDirector+File.separator+
+                           fileName.substring(0,fileName.indexOf(CollectorConstant.FILE_NAME_SPLIT
+                           )-1);
                            //移动站的处理
                            if(fileName.contains(CollectorConstant.MOBILE_STATION)){
                                threadPool.execute(new ParseMobileStationData(new File(fileName),targetFile));
                            }
                            //固定站的处理
                            if(fileName.contains(CollectorConstant.FIXATION_STATION)){
-
+                               threadPool.execute(new ParseFixStationData(new File(fileName),targetFile));
                            }
                        }
 
@@ -52,15 +59,12 @@ public class BootStrap {
                      //移动站的处理
                      if(fileName.contains(CollectorConstant.MOBILE_STATION)){
                            String newFile = absolutePath.substring(0,absolutePath.lastIndexOf(CollectorConstant.FILE_NAME_SPLIT)-1);
-                          File tartgetFile =  new File(newFile);
-                           if (!tartgetFile.exists()){
-                               tartgetFile.mkdirs();
-                               threadPool.execute(new ParseMobileStationData(file,newFile));
-                           }
+                           threadPool.execute(new ParseMobileStationData(file,newFile));
                      }
                      //固定站的处理
                      if(fileName.contains(CollectorConstant.FIXATION_STATION)){
-
+                         String newFile = absolutePath.substring(0,absolutePath.lastIndexOf(CollectorConstant.FILE_NAME_SPLIT)-1);
+                         threadPool.execute(new ParseFixStationData(new File(fileName),newFile));
                      }
                    }
                   // String path =    file.getAbsolutePath();

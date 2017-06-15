@@ -1,4 +1,4 @@
-package xnbb.com.bj.xnbb.domain;
+package com.bj.xnbb.domain;
 
 /**移动站的实体类
  * Created by XNBB on 2017/6/14.
@@ -15,6 +15,7 @@ public class StationEntity {
     private String minute;//分钟
     private String second;//秒
     private String millisecond;//毫秒
+    private String speed;
     private double longitude;//精度
     private double dimension;//纬度
     private int hanging;//挂高
@@ -161,12 +162,21 @@ public class StationEntity {
         this.frequency = frequency;
     }
 
+    public String getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(String speed) {
+        this.speed = speed;
+    }
+
     @Override
     public String toString() {
         return fileName+
                 "\t"+title+
                 "\t"+seria+
                 "\t"+yarn+month+date+hour+minute+second+millisecond+
+                "\t"+speed+
                 "\t"+longitude+
                 "\t"+dimension+
                 "\t"+hanging+

@@ -1,4 +1,4 @@
-package xnbb.com.bj.xnbb.common;
+package com.bj.xnbb.common;
 
 /**一些采集器的类型
  * Created by XNBB on 2017/6/14.
@@ -23,7 +23,7 @@ public interface CollectorConstant {
     /**
      * 文件后缀名称
      */
-    public static final String  POSTFIX = "_file";
+    public static final String  POSTFIX = "_";
     /**
      * 线程数量
      */
