@@ -8,12 +8,12 @@ public interface CollectorConstant {
     /**
      * 移动站的标志
      */
-    public static final String MOBILE_STATION = "V_M";
+    public static final String MOBILE_STATION = "_M";
 
     /**I
      * 固定站的标志
      */
-    public static final String FIXATION_STATION = "V_F";
+    public static final String FIXATION_STATION = "_F";
 
     /**
      * 文件名称分隔符

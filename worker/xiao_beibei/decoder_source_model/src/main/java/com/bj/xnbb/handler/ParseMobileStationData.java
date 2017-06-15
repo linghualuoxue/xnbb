@@ -200,15 +200,15 @@ public class ParseMobileStationData implements Runnable {
             b = new byte[len];
             stream.read(b);
             long startkHz = BytesConversionUtils.getLong8(b,0);
-            System.out.printf("开始频率:"+startkHz+" Hz\n");
-            entity.setStartkHz(startkHz);
+            System.out.printf("开始频率:"+startkHz/1000000+" MHz\n");
+            entity.setStartkHz(startkHz/1000000);
 
             len=4;
             b = new byte[len];
             stream.read(b);
             float step = BytesConversionUtils.getFloat(b);
-            System.out.printf("步进:"+step+" Hz\n");
-            entity.setStep(step);
+            System.out.printf("步进:"+step/1000+" kHz\n");
+            entity.setStep(step/1000);
 
             len=4;
             b = new byte[len];

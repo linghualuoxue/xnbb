@@ -173,17 +173,17 @@ public class StationEntity {
     @Override
     public String toString() {
         return fileName+
-                "\t"+title+
-                "\t"+seria+
-                "\t"+yarn+month+day+hour+minute+second+millisecond+
-                "\t"+(speed==null?"speed":speed)+
-                "\t"+longitude+
-                "\t"+dimension+
-                "\t"+hanging+
-                "\t"+startkHz+
-                "\t"+step+
-                "\t"+frequencyCount+
-                "\t"+frequency;
+                "\001"+title+
+                "\001"+seria+
+                "\001"+yarn+month+day+hour+minute+second+millisecond+
+                "\001"+(speed==null?"speed":speed)+
+                "\001"+longitude+
+                "\001"+dimension+
+                "\001"+hanging+
+                "\001"+startkHz+
+                "\001"+step+
+                "\001"+frequencyCount+
+                "\001"+frequency;
     }
 
 }
