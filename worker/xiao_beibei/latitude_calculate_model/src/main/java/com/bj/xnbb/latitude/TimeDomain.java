@@ -28,7 +28,6 @@ public class TimeDomain {
                 while((context = br.readLine())!=null){
 
                     String[] split = context.split(Constant.SEPARATOR);
-                    String time_hour = split[0].substring(0, 10);
                     String time_minute = split[0].substring(0, 12);
                     lastMinute = time_minute;
                     if(minuteList.contains(time_minute)){
@@ -59,6 +58,18 @@ public class TimeDomain {
                         }
 
                         String[] frequency_pointers = split[6].split(" ");
+                        List<Float> frequencyList = new ArrayList<Float>();
+
+                        for (String frequency_pointer : frequency_pointers) {
+                            frequencyList.add(Float.valueOf(frequency_pointer) / 10.0f - Constant.FIELD_STRENGTH_CONSTANT);
+                        }
+
+                        getNoiseLine(frequencyList);
+
+
+
+
+
                         for (int j = 0; j < frequency_pointers.length-1; j++) {
                             float value = (float) (getNoisyPoint() + (Float.valueOf(frequency_pointers[i]) / 10.0f - Constant.FIELD_STRENGTH_CONSTANT));
                                 minuteMap.put(j,new float[4]);
@@ -152,6 +163,73 @@ public class TimeDomain {
         }
     }
 
+
+    public static void getNoiseLine(List<Float> frequencyList){
+
+        // -10 -20 -30 -40 -50 -60 -70 -80 -90 -100 -110
+        //10组list
+        Map<String, ArrayList<Float>> listMap = new HashMap<String, ArrayList<Float>>();
+        for (int i = 0; i < 10; i++) {
+            listMap.put("list"+i,new ArrayList<Float>());
+        }
+        for (Float element : frequencyList) {
+             if(-110<= element && element <-100){
+                 listMap.get("lsit10").add(element);
+                 continue;
+             }else if(-100<= element && element <-90){
+                 listMap.get("lsit9").add(element);
+                 continue;
+             }else if(-90<= element && element <-80){
+                 listMap.get("lsit8").add(element);
+                 continue;
+             }else if(-80<= element && element <-70){
+                 listMap.get("lsit7").add(element);
+                 continue;
+             }else if(-70<= element && element <-60){
+                 listMap.get("lsit6").add(element);
+                 continue;
+             }else if(-60<= element && element <-50){
+                 listMap.get("lsit5").add(element);
+                 continue;
+             }else if(-50<= element && element <-40){
+                 listMap.get("lsit4").add(element);
+                 continue;
+             }else if(-40<= element && element <-30){
+                 listMap.get("lsit3").add(element);
+                 continue;
+             }else if(-30<= element && element <-20){
+                 listMap.get("lsit2").add(element);
+                 continue;
+             }else if(-20<= element && element <-10){
+                 listMap.get("lsit1").add(element);
+                 continue;
+             }
+             List<Integer> sortList = new ArrayList<Integer>();
+            for (int i = 0; i < listMap.size()-1; i++) {
+                Collections.sort(listMap.get("list"+i));
+                sortList.add(listMap.get("list"+i).size());
+            }
+            Collections.sort(sortList);
+            float maxfrequency=0f;
+            float minfrequency=0f;
+            for (int i = 0; i < listMap.size()-1; i++) {
+                if(listMap.get("list"+i).size()==sortList.get(0)){
+                    String maxList = ("lsit"+i);
+                    maxfrequency= listMap.get(maxList).get(0);
+                    minfrequency= listMap.get(maxList).get(listMap.get(maxList).size()-1);
+                    break;
+                }
+            }
+            
+
+
+
+
+
+        }
+
+
+    }
 
     /**
      * 获取噪点
