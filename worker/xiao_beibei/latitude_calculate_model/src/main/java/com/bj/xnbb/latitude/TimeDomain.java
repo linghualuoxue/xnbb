@@ -174,34 +174,34 @@ public class TimeDomain {
         }
         for (Float element : frequencyList) {
              if(-110<= element && element <-100){
-                 listMap.get("lsit10").add(element);
+                 listMap.get("list10").add(element);
                  continue;
              }else if(-100<= element && element <-90){
-                 listMap.get("lsit9").add(element);
+                 listMap.get("list9").add(element);
                  continue;
              }else if(-90<= element && element <-80){
-                 listMap.get("lsit8").add(element);
+                 listMap.get("list8").add(element);
                  continue;
              }else if(-80<= element && element <-70){
-                 listMap.get("lsit7").add(element);
+                 listMap.get("list7").add(element);
                  continue;
              }else if(-70<= element && element <-60){
-                 listMap.get("lsit6").add(element);
+                 listMap.get("list6").add(element);
                  continue;
              }else if(-60<= element && element <-50){
-                 listMap.get("lsit5").add(element);
+                 listMap.get("list5").add(element);
                  continue;
              }else if(-50<= element && element <-40){
-                 listMap.get("lsit4").add(element);
+                 listMap.get("list4").add(element);
                  continue;
              }else if(-40<= element && element <-30){
-                 listMap.get("lsit3").add(element);
+                 listMap.get("list3").add(element);
                  continue;
              }else if(-30<= element && element <-20){
-                 listMap.get("lsit2").add(element);
+                 listMap.get("list2").add(element);
                  continue;
              }else if(-20<= element && element <-10){
-                 listMap.get("lsit1").add(element);
+                 listMap.get("list1").add(element);
                  continue;
              }
              List<Integer> sortList = new ArrayList<Integer>();
