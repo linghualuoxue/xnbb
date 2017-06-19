@@ -221,16 +221,55 @@ public class TimeDomain {
                     break;
                 }
             }
-
-
-            
-
-
-
-
-
         }
 
+
+    public static void getLine(List<Float> frequencyList,float lowLine,float maxLine){
+        int everySize = frequencyList.size()/Constant.COPIES;
+        ArrayList<ArrayList<Float>> totalList = new ArrayList<ArrayList<Float>>();
+        for (int i = 0; i < Constant.COPIES; i++) {
+            totalList.add(new ArrayList<Float>());
+        }
+        int j=0;
+        for (int i = 0; i < frequencyList.size()-1; i++) {
+            if(i%everySize!=0 || i!=0){
+                totalList.get(j).add(frequencyList.get(i));
+            }else{
+                if (i!=0 && (frequencyList.size()-1-i)>everySize){
+                    j++;
+                }
+                totalList.get(j).add(frequencyList.get(i));
+            }
+        }
+
+        float[] minPointerArray = new float[Constant.COPIES];
+        int m=0;
+        for (ArrayList<Float> floats : totalList) {
+            Collections.sort(floats);
+            float minPointer = floats.get(0);
+            if(minPointer<lowLine){
+                minPointerArray[m] = lowLine;
+            }else{
+                if(minPointer < maxLine){
+                    minPointerArray[m] = minPointer;
+                }else{
+                    minPointerArray[m] = maxLine;
+                }
+            }
+            m++;
+        }
+
+
+
+
+
+
+
+
+        float[] minPointer = new float[10];
+
+
+    }
 
 
 

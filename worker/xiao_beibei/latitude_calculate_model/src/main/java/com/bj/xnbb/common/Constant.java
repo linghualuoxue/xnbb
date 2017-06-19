@@ -42,4 +42,9 @@ public class Constant {
      */
    public static int UNOCCUPY = 0;
 
+    /**
+     * 划分的份数
+     */
+   public static int COPIES =10;
+
 }
