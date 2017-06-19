@@ -65,7 +65,7 @@ public class TimeDomain {
                         }
 
                         getNoiseLine(frequencyList);
-
+                        System.out.printf("噪点计算完成");
 
 
 
@@ -169,57 +169,60 @@ public class TimeDomain {
         // -10 -20 -30 -40 -50 -60 -70 -80 -90 -100 -110
         //10组list
         Map<String, ArrayList<Float>> listMap = new HashMap<String, ArrayList<Float>>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 1; i <= 10; i++) {
             listMap.put("list"+i,new ArrayList<Float>());
         }
         for (Float element : frequencyList) {
-             if(-110<= element && element <-100){
-                 listMap.get("list10").add(element);
-                 continue;
-             }else if(-100<= element && element <-90){
-                 listMap.get("list9").add(element);
-                 continue;
-             }else if(-90<= element && element <-80){
-                 listMap.get("list8").add(element);
-                 continue;
-             }else if(-80<= element && element <-70){
-                 listMap.get("list7").add(element);
-                 continue;
-             }else if(-70<= element && element <-60){
-                 listMap.get("list6").add(element);
-                 continue;
-             }else if(-60<= element && element <-50){
-                 listMap.get("list5").add(element);
-                 continue;
-             }else if(-50<= element && element <-40){
-                 listMap.get("list4").add(element);
-                 continue;
-             }else if(-40<= element && element <-30){
-                 listMap.get("list3").add(element);
-                 continue;
-             }else if(-30<= element && element <-20){
-                 listMap.get("list2").add(element);
-                 continue;
-             }else if(-20<= element && element <-10){
-                 listMap.get("list1").add(element);
-                 continue;
-             }
+            if (-110 <= element && element < -100) {
+                listMap.get("list10").add(element);
+                continue;
+            } else if (-100 <= element && element < -90) {
+                listMap.get("list9").add(element);
+                continue;
+            } else if (-90 <= element && element < -80) {
+                listMap.get("list8").add(element);
+                continue;
+            } else if (-80 <= element && element < -70) {
+                listMap.get("list7").add(element);
+                continue;
+            } else if (-70 <= element && element < -60) {
+                listMap.get("list6").add(element);
+                continue;
+            } else if (-60 <= element && element < -50) {
+                listMap.get("list5").add(element);
+                continue;
+            } else if (-50 <= element && element < -40) {
+                listMap.get("list4").add(element);
+                continue;
+            } else if (-40 <= element && element < -30) {
+                listMap.get("list3").add(element);
+                continue;
+            } else if (-30 <= element && element < -20) {
+                listMap.get("list2").add(element);
+                continue;
+            } else if (-20 <= element && element < -10) {
+                listMap.get("list1").add(element);
+                continue;
+            }
+        }
              List<Integer> sortList = new ArrayList<Integer>();
-            for (int i = 0; i < listMap.size()-1; i++) {
+            for (int i = 1; i <= listMap.size(); i++) {
                 Collections.sort(listMap.get("list"+i));
                 sortList.add(listMap.get("list"+i).size());
             }
             Collections.sort(sortList);
             float maxfrequency=0f;
             float minfrequency=0f;
-            for (int i = 0; i < listMap.size()-1; i++) {
-                if(listMap.get("list"+i).size()==sortList.get(0)){
-                    String maxList = ("lsit"+i);
-                    maxfrequency= listMap.get(maxList).get(0);
-                    minfrequency= listMap.get(maxList).get(listMap.get(maxList).size()-1);
+            for (int i = 1; i < listMap.size(); i++) {
+                if(listMap.get("list"+i).size()==sortList.get(sortList.size()-1)){
+                    String maxList = ("list"+i);
+                    minfrequency= listMap.get(maxList).get(0);
+                    maxfrequency= listMap.get(maxList).get(listMap.get(maxList).size()-1);
                     break;
                 }
             }
+
+
             
 
 
@@ -229,7 +232,7 @@ public class TimeDomain {
         }
 
 
-    }
+
 
     /**
      * 获取噪点
