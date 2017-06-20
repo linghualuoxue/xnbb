@@ -11,6 +11,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>latitude_calculate_model</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>../latitude_calculate_mr</module>
+    </modules>
 
     <groupId>com.bj.xnbb.latitude_calculate_model</groupId>
 

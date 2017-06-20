@@ -11,6 +11,11 @@ public class Constant {
     public static final String  SEPARATOR = "\001";
 
     /**
+     * 文件名称分隔符
+     */
+    public static final String FILE_NAME_SPLIT = "_";
+
+    /**
      * 场强常量
      */
     public static final float FIELD_STRENGTH_CONSTANT =  107.0f;

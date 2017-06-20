@@ -3,13 +3,20 @@ package com.bj.xnbb.latitude;
 import com.bj.xnbb.common.Constant;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
  * Created by XNBB on 2017/6/15.
  */
 public class TimeDomain {
+
+    static DecimalFormat format2 = new DecimalFormat("#.00");
+    static DecimalFormat format3 = new DecimalFormat("#.000");
     public static void main(String[] args) throws Exception{
+
+
 
         if (args != null && args.length > 0){
             for (String fileName : args) {
@@ -22,21 +29,30 @@ public class TimeDomain {
                 Map<Integer,float[]> minuteMap = new HashMap<Integer,float[]>();//每分钟频点对应的占用率
 
                 List<int[]> frameList = new ArrayList<int[]>();//存储每贞的对应数据
-
+                //21010000_0014_20160930_090037_930MHz_934MHz_25.00kHz_V_M   文件名称格式
+                String[] fileName_split = fileName.split(Constant.FILE_NAME_SPLIT);
+                float startHz = Float.parseFloat(fileName_split[4].substring(0,fileName_split[4].lastIndexOf('M')));
+                float endHz = Float.parseFloat(fileName_split[5].substring(0,fileName_split[5].lastIndexOf('M')));
+                float step = Float.parseFloat(fileName_split[6].substring(0,fileName_split[6].lastIndexOf('k')))/1000;
                 String lastMinute = "";
                 int i = 0;//帧数计数器
+
+                Map<Float,Integer> noizePointerMap = null;
                 while((context = br.readLine())!=null){
 
                     String[] split = context.split(Constant.SEPARATOR);
                     String time_minute = split[0].substring(0, 12);
                     lastMinute = time_minute;
+
                     if(minuteList.contains(time_minute)){
                         //包含，就是同一分钟内的数据
                         i++; //一分钟的帧数增加1
 
                         String[] frequency_pointers = split[6].split(" ");
+
                         for (int j = 0; j < frequency_pointers.length-1; j++) {
-                            float value = (float) (getNoisyPoint() + (Float.valueOf(frequency_pointers[i]) / 10.0f - Constant.FIELD_STRENGTH_CONSTANT));
+                            float currentHz = startHz+i*step;
+                            float value = (float) ((Float.valueOf(frequency_pointers[i]) / 10.0f - Constant.FIELD_STRENGTH_CONSTANT-noizePointerMap.get(currentHz)));
                                 minuteMap.get(j)[0] += value>= Constant.THRESHOLD_5 ? 1:0;
                                 minuteMap.get(j)[1] += value>= Constant.THRESHOLD_10 ? 1:0;
                                 minuteMap.get(j)[2] += value>= Constant.THRESHOLD_20 ? 1:0;
@@ -64,14 +80,16 @@ public class TimeDomain {
                             frequencyList.add(Float.valueOf(frequency_pointer) / 10.0f - Constant.FIELD_STRENGTH_CONSTANT);
                         }
 
-                        getNoiseLine(frequencyList);
+                        float[] minAndMaxDB = getNoiseLine(frequencyList);
+                        noizePointerMap = getLine(frequencyList,minAndMaxDB[0],minAndMaxDB[1],startHz,endHz,step);
                         System.out.printf("噪点计算完成");
 
 
 
 
                         for (int j = 0; j < frequency_pointers.length-1; j++) {
-                            float value = (float) (getNoisyPoint() + (Float.valueOf(frequency_pointers[i]) / 10.0f - Constant.FIELD_STRENGTH_CONSTANT));
+                            float currentHz = startHz+j*step;
+                            float value =  (Float.valueOf(frequency_pointers[i]) / 10.0f - Constant.FIELD_STRENGTH_CONSTANT-noizePointerMap.get(currentHz));
                                 minuteMap.put(j,new float[4]);
                                 minuteMap.get(j)[0] = value>= Constant.THRESHOLD_5 ? 1:0;
                                 minuteMap.get(j)[1]= value>= Constant.THRESHOLD_10 ? 1:0;
@@ -164,7 +182,7 @@ public class TimeDomain {
     }
 
 
-    public static void getNoiseLine(List<Float> frequencyList){
+    public static float[] getNoiseLine(List<Float> frequencyList){
 
         // -10 -20 -30 -40 -50 -60 -70 -80 -90 -100 -110
         //10组list
@@ -221,53 +239,89 @@ public class TimeDomain {
                     break;
                 }
             }
+            return new float[]{minfrequency,maxfrequency};
         }
 
+    /**
+     * 获取噪点
+     * @param frequencyList 每分钟第一帧的数据
+     * @param lowLine 计算出来的最低值
+     * @param maxLine  计算出来的最高值
+     * @param startHz   开始频率
+     * @param endHz     结束频率
+     * @param step      步进
+     */
 
-    public static void getLine(List<Float> frequencyList,float lowLine,float maxLine){
+    public static Map<Float,Integer> getLine(List<Float> frequencyList,float lowLine,float maxLine,float startHz,float endHz,float step){
         int everySize = frequencyList.size()/Constant.COPIES;
-        ArrayList<ArrayList<Float>> totalList = new ArrayList<ArrayList<Float>>();
+        ArrayList<ArrayList<float[]>> totalList = new ArrayList<ArrayList<float[]>>();
         for (int i = 0; i < Constant.COPIES; i++) {
-            totalList.add(new ArrayList<Float>());
+            totalList.add(new ArrayList<float[]>());
         }
         int j=0;
-        for (int i = 0; i < frequencyList.size()-1; i++) {
-            if(i%everySize!=0 || i!=0){
-                totalList.get(j).add(frequencyList.get(i));
+        for (int i = 0; i <= frequencyList.size()-1; i++) {
+            float h = startHz+step*i;
+            if(i%everySize!=0){
+
+                totalList.get(j).add(new float[]{h,frequencyList.get(i)});
             }else{
-                if (i!=0 && (frequencyList.size()-1-i)>everySize){
+                if (i!=0 && (frequencyList.size()-1-i)>=everySize){
                     j++;
                 }
-                totalList.get(j).add(frequencyList.get(i));
+                totalList.get(j).add(new float[]{h,frequencyList.get(i)});
             }
         }
 
-        float[] minPointerArray = new float[Constant.COPIES];
+        //float[] minPointerArray = new float[Constant.COPIES];
+        ArrayList<float[]> tenPointer = new ArrayList<float[]>();
+        tenPointer.add(new float[]{startHz,frequencyList.get(0)});//将第一点放入统计list中
         int m=0;
-        for (ArrayList<Float> floats : totalList) {
-            Collections.sort(floats);
-            float minPointer = floats.get(0);
-            if(minPointer<lowLine){
-                minPointerArray[m] = lowLine;
+        for (ArrayList<float[]> floats : totalList) {
+            Collections.sort(floats, new Comparator<float[]>() {
+                public int compare(float[] o1, float[] o2) {
+                    if (o1[1]>o2[1])return 1;
+                    return -1;
+                }
+            });
+            float[] minPointer = floats.get(0);  //获取每个统计list中最低的坐标点
+            if(minPointer[1]<lowLine){
+                tenPointer.add(new float[]{minPointer[0],lowLine});
             }else{
-                if(minPointer < maxLine){
-                    minPointerArray[m] = minPointer;
+                if(minPointer[1] < maxLine){
+                    tenPointer.add(minPointer);
                 }else{
-                    minPointerArray[m] = maxLine;
+                    tenPointer.add(new float[]{minPointer[0],maxLine});
                 }
             }
             m++;
         }
+        tenPointer.add(new float[]{endHz,frequencyList.get(frequencyList.size()-1)});//将最后一个点放入统计list中
+
+        //获取每个频率点对应的噪点
+        Map<Float,Integer> noizePointer = new HashMap<Float,Integer>();
+        float currentHz=startHz;//当前频率
+        for (int i = 1; i <= tenPointer.size()-1; i++) {
+if(i==11){
+
+    System.out.printf("");
+}
+            float[] m1 = tenPointer.get(i-1);
+            float[] m2 = tenPointer.get(i);
+            try {
+            float n = Float.parseFloat(format2.format((m2[1]-m1[1])/(m2[0]-m1[0])));
+            float t = Float.parseFloat(format2.format(m2[1]-m2[0]*n));
 
 
-
-
-
-
-
-
-        float[] minPointer = new float[10];
-
+                while (currentHz<=tenPointer.get(i)[0]) {
+                    noizePointer.put(currentHz, Math.round(currentHz * n + t));
+                    currentHz = Float.parseFloat(format3.format(currentHz+step));
+                }
+            } catch (NumberFormatException e) {
+                System.out.printf("i:"+i);
+                e.printStackTrace();
+            }
+        }
+        return noizePointer;
 
     }
 
