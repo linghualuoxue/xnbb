@@ -13,6 +13,11 @@ public class Constant {
     public static final String  SEPARATOR = "\001";
 
     /**
+     * reduce结果分隔符
+     */
+    public static final String  SEPARATOR_TAB = "\t";
+
+    /**
      * 文件名称分隔符
      */
     public static final String FILE_NAME_SPLIT = "_";
@@ -57,9 +62,9 @@ public class Constant {
     /**
      * 保留两位有效数字
      */
-    public static DecimalFormat format2 = new DecimalFormat("#.00");
+    public static DecimalFormat format2 = new DecimalFormat("0.##");
     /**
      * 保留三位有效数字
      */
-    public static DecimalFormat format3 = new DecimalFormat("#.000");
+    public static DecimalFormat format3 = new DecimalFormat("0.###");
 }

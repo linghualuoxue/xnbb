@@ -1,4 +1,4 @@
-package com.bj.xnbb;
+package com.bj.xnbb.reducer;
 
 import com.bj.xnbb.common.Constant;
 import org.apache.hadoop.io.Text;
@@ -6,6 +6,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 
@@ -17,46 +18,58 @@ public class MinuteReducer extends Reducer<Text,Text,Text,Text> {
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
          int i = 0;
-         int sum = getCount(values);//获取一分钟内总共有多少条数据
 
+
+        ArrayList<String> textList = getTextList(values);//将iterable转化为list
+
+         int sum = textList.size();//获取一分钟内总共有多少条数据
         String[] fileNameSplits = key.toString().split(Constant.FILE_NAME_SPLIT);
 
         float startHz = Float.parseFloat(fileNameSplits[3]);//开始频率
         float endHz = Float.parseFloat(fileNameSplits[4]);//结束频率
-        float step = Float.parseFloat(fileNameSplits[5]);//步进
-        BigDecimal sumBig = new BigDecimal(sum);
-        ArrayList<BigDecimal[]> valueList = new ArrayList<BigDecimal[]>();//放每分钟每个频点对应的几个值
-        Map<Integer,int[]> minuteMap = getMinuteMap(fileNameSplits);//每分钟频点对应的占用率
+        float step = Float.parseFloat(fileNameSplits[5])/1000;//步进
+        ArrayList<float[]> valueList = new ArrayList<float[]>();//放每分钟每个频点对应的几个值
+        Map<Integer,int[]> minuteMap = getMinuteMap(textList.get(0).toString().split(" "));//每分钟频点对应的占用率
 
         StringBuilder sb = new StringBuilder();//拼接字符串
         Map<Float, Integer> noizeMap = null;//对应的噪点
-        for (Text value : values) {//每一条数据的处理
-            String[] frequency_point_array = value.toString().split(" ");
+        for (String value : textList) {//每一条数据的处理
+            String[] frequency_point_array = value.split(" ");
             List<Float> pointerList = new ArrayList<Float>();
             for (String pointer : frequency_point_array) {
-                pointerList.add(Float.valueOf(pointer));
+                pointerList.add((Float.parseFloat(pointer)/10)-Constant.FIELD_STRENGTH_CONSTANT);
             }
             if(i==0){
                 float[] noiseLine = getNoiseLine(pointerList);
                 noizeMap = getLine(pointerList, noiseLine[0], noiseLine[1], startHz, endHz, step);
             }
             getPointerList(startHz, step, minuteMap, noizeMap, pointerList);
-            for (int[] ints : minuteMap.values()) {
-                BigDecimal[] bigArr = new BigDecimal[4];
-                bigArr[0] = new BigDecimal(ints[0]).divide(sumBig).setScale(2,BigDecimal.ROUND_HALF_UP);
-                bigArr[1] = new BigDecimal(ints[2]).divide(sumBig).setScale(2,BigDecimal.ROUND_HALF_UP);
-                bigArr[2] = new BigDecimal(ints[3]).divide(sumBig).setScale(2,BigDecimal.ROUND_HALF_UP);
-                bigArr[3] = new BigDecimal(ints[4]).divide(sumBig).setScale(2,BigDecimal.ROUND_HALF_UP);
-                valueList.add(bigArr);
-            }
+
             i++;
         }
 
-        for (BigDecimal[] bigDecimals : valueList) {
-            sb.append(bigDecimals[0].toString()+"_"+bigDecimals[1].toString()+"_"+bigDecimals[0].toString()+"_"+bigDecimals[1].toString()).append(" ");
+        for (int j = 0; j < minuteMap.size(); j++) {
+            int[] ints = minuteMap.get(j);
+            float s1 = ints[0]/sum;
+            float s2 = ints[1]/sum;
+            float s3 = ints[2]/sum;
+            float s4 = ints[3]/sum;
+            valueList.add(new float[]{s1,s2,s3,s4});
         }
-        text.set(sb.substring(0,sb.length()));
+
+        for (float[] floatPointer : valueList) {
+            sb.append(floatPointer[0]+"_"+floatPointer[1]+"_"+floatPointer[2]+"_"+floatPointer[3]).append(" ");
+        }
+        text.set(sb.substring(0,sb.length()-1));
         context.write(key,text);
+    }
+
+    private ArrayList<String> getTextList(Iterable<Text> values) {
+        ArrayList<String> textList = new ArrayList<String>();
+        for (Text value : values) {
+            textList.add(value.toString());
+        }
+        return textList;
     }
 
     /**
@@ -70,26 +83,19 @@ public class MinuteReducer extends Reducer<Text,Text,Text,Text> {
     private void getPointerList(float startHz, float step, Map<Integer, int[]> minuteMap, Map<Float, Integer> noizeMap, List<Float> pointerList) {
         for (int j = 0; j < pointerList.size(); j++) {
             float currentHz = startHz+j*step;
-            float v = (Float.valueOf(pointerList.get(j)) / 10.0f - Constant.FIELD_STRENGTH_CONSTANT-noizeMap.get(currentHz));
-            minuteMap.get(j)[0] += v>= Constant.THRESHOLD_5 ? 1:0;
-            minuteMap.get(j)[1] += v>= Constant.THRESHOLD_10 ? 1:0;
-            minuteMap.get(j)[2] += v>= Constant.THRESHOLD_20 ? 1:0;
-            minuteMap.get(j)[3] += v>= Constant.THRESHOLD_30 ? 1:0;
+            try {
+                float v = Float.valueOf(pointerList.get(j)-noizeMap.get(currentHz));
+
+                minuteMap.get(j)[0] += v>= Constant.THRESHOLD_5 ? 1:0;
+                minuteMap.get(j)[1] += v>= Constant.THRESHOLD_10 ? 1:0;
+                minuteMap.get(j)[2] += v>= Constant.THRESHOLD_20 ? 1:0;
+                minuteMap.get(j)[3] += v>= Constant.THRESHOLD_30 ? 1:0;
+            } catch (Exception e) {
+                System.out.printf("出错："+j);
+            }
         }
     }
 
-    /**
-     * 获取每分钟总条数
-     * @param values
-     * @return
-     */
-    public static int getCount(Iterable<Text> values){
-        int sum=0;
-        for (Text value : values) {
-            sum++;
-        }
-        return sum;
-    }
 
     /**
      * 获取装每个频率四个门限值的map
@@ -223,12 +229,10 @@ public class MinuteReducer extends Reducer<Text,Text,Text,Text> {
         Map<Float,Integer> noizePointer = new HashMap<Float,Integer>();
         float currentHz=startHz;//当前频率
         for (int i = 1; i <= tenPointer.size()-1; i++) {
-            if(i==11){
 
-                System.out.printf("");
-            }
             float[] m1 = tenPointer.get(i-1);
             float[] m2 = tenPointer.get(i);
+            if(m1[0]==m2[0])continue;//最低点落在了两边上
             try {
                 float n = Float.parseFloat(Constant.format2.format((m2[1]-m1[1])/(m2[0]-m1[0])));
                 float t = Float.parseFloat(Constant.format2.format(m2[1]-m2[0]*n));

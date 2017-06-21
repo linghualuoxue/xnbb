@@ -28,7 +28,9 @@ public class MinuteMap extends Mapper<LongWritable,Text,Text,Text>{
         k.setTime(valueSplit[0].substring(0,12));
         k.setStartHz(fileNameSplit[4].substring(0,fileNameSplit[4].lastIndexOf("M")));
         k.setEndHz(fileNameSplit[5].substring(0,fileNameSplit[5].lastIndexOf("M")));
-        k.setStep(String.valueOf(Integer.parseInt(fileNameSplit[6].substring(0,fileNameSplit[6].lastIndexOf("k")))));
+
+        //String s = String.valueOf((int)Float.parseFloat(fileNameSplit[6].substring(0,fileNameSplit[6].lastIndexOf("k"))));
+        k.setStep(String.valueOf((int)Float.parseFloat(fileNameSplit[6].substring(0,fileNameSplit[6].lastIndexOf("k")))));
         k.setPolarization(fileNameSplit[7]);
         k.setSign(fileNameSplit[8]);
         key.set(k.toString());

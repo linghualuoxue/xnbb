@@ -6,5 +6,7 @@ public class Test1 {
         String a = "2016093009100073";
         String b = a.substring(0,12);
         System.out.printf(b);
+
+
     }
 }
